@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block mainbody %}
+
+<div class="container search" >
+<div class="row">
+    <img class="col-sm-3" src='/uploadImages/logo.gif' />
+    <div class="col-sm-9">
+    <ul class="nav nav-tabs" id="TabContent">
+        <li class="active"><a href="#wordSearch">关键字搜索</a></li>
+        <li><a href="#picSearch">图片搜索</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="wordSearch">
+            <form method="GET" action="/search/">
+                <input type="text" name="q"/>
+                <button type="submit">SearchGo</button>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="picSearch">
+            <form method="POST" enctype="multipart/form-data" action="/search/">
+                {% csrf_token %}
+                <input type="file" name="picfile"/>
+                <input type="submit" value="SearchGO"/>
+                <input type="radio" name="type" value="1" checked>按颜色查找</input>
+                <input type="radio" name="type" value="2">按形状查找</input>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+    <script>
+        $(function () {
+            $('#TabContent a[href="wordSearch"]').tab('show');//初始化显示哪个tab
+
+            $('#TabContent a').click(function (e) {
+                e.preventDefault();//阻止a链接的跳转行为
+                $(this).tab('show');//显示当前选中的链接及关联的content
+            })
+        })
+    </script>
+    <div class="container" style="padding-top:50px;">
+        <div class="row">
+            <nav class="col-sm-2">
+            <ul class="nav nav-pills nav-stacked" data-spy="affix" data-offset-top="205">
+                {% for category in categories %}
+                <li><a href="/cata/{{ category }}">{{ category }}</a></li>
+                {% endfor %}
+            </ul>
+            </nav>
+            <div class="col-sm-10">
+                {% if origin_img %}
+                <div style="width:220px;height:400px;">
+                <img src="/{{ origin_img }}" style="width:220px; height:282px;" >
+                <p>原始图片</p>
+                </div>
+                {% endif %}
+                {% if commodities %}
+                {% for commodity in commodities %}
+                <div style="width:220px;height:400px;float:left">
+                    <img src="/{{ commodity.img }}" style="width:220px; height:282px;" >
+                    <p>商品名称：{{ commodity.name }}</p>
+                    {% if commodity.chi2_d %}
+                    <p>chi2_d: {{ commodity.chi2_d }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <h1>使用说明</h1>
+                <h5>
+                1.重新搜索一个对象，请点击网页右上角的“首页”返回。<br/><br/>
+                2.关键字搜索： <br/>
+                    A.输入文字：如“裤子”。搜索到则会返回图片描述语中含有“裤子”的图片。<br/>
+                    B.如果第一次搜索出图片太多，可以再次往输入框中输入“男士”，便可以做二次搜索，得到描述语有“男士裤子”的图片。 <br/><br/>
+                3.点击图片搜索便可以在选择文件按钮按下后选择图片上传来做检索样本。检索方式有按颜色和形状查找。<br/>
+                    A.按颜色查找，返回的图片颜色分布的状况会跟你上传的类似。返回的图片下方是返回图片跟检索图片的海明距离如：chi2_d:2.16929933152。你可以认为是chi2_d的值越小跟检索图越类似。<br/>
+                    B.按形状查找，返回的图片里的物品形状轮廓会跟你上传的类似。<br/>
+                    C.颜色跟形状目前只能选其中一个进行帅选图片。<br/><br/>
+                4.网页侧边的“羽绒服”，“休闲裤”等，如点击“羽绒服”，可以看到我们图库里所有羽绒服图片。<br/>
+                </h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
